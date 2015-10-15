@@ -12,7 +12,7 @@ var mongoose = require('mongoose'),
  */
 var SearchSchema = new Schema({
 	id:Schema.Types.ObjectId,
-	requestDate:Date,
+	requestDate:String,
 	origin: String,
 	destination: String,
 	flights : [Flight]

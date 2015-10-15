@@ -11,25 +11,29 @@ exports.getAllByCriteria = function(req, res){
 	var origin = req.query.origin;
 	var destination = req.query.destination;
 
-	var query = {
+	var query  = Search.where({ 
 		origin : req.query.origin,
 		destination : req.query.destination,
 		requestDate : {
 			$gt:new Date().getTime()-req.app.locals.cacheDuration
-		}
-	};
-
-	Search.findOne(query).exec(function(err, search) {
+		} 
+	});
+	query.findOne(function (err, search) {
 		if (err) {
 			return res.status(400).send({
 				message: errorHandler.getErrorMessage(err)
 			});
 		} else {
 			if(search){
-				res.end(search);
+				res.json(JSON.stringify(search));
 			}else{
-				seeflightService.getAndStoreFlights(res, origin, destination);
-				res.end();
+				seeflightService.getAndStoreFlights(res, origin, destination, function(err, data){
+					if(err){
+						res.json(err);
+					}else{
+						res.json(JSON.stringify(data));
+					}
+				});
 			}
 		}
 	});

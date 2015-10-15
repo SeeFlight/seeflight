@@ -7,14 +7,23 @@ var Flight = mongoose.model('Flight');
 
 exports.getAndStoreFlights = function(res, origin, destination, callback){
 	var nbRequests = Math.ceil(res.app.locals.maxLengthOfStay/res.app.locals.maxSabreAPILengthOfStay);
+	var nbResults = 0;
 	var saleCountry = res.app.locals.saleCountry;
-
 	var j=1;
 	var momentObj = moment();
-	for(var i=1; i<=nbRequests; i++){
+
+	var requestDate = new Date().getTime();		
+
+	var search = new Search({
+		requestDate : requestDate,
+		origin : origin,
+		destination : destination
+	});
+
+	for(var i=0; i<=nbRequests; i++){
 		var arrayLengthOfStay = [];
 		var arrayDepartureDates = [];
-		for(var k=0; k<res.app.locals.maxSabreAPILengthOfStay; k++){
+		for(var k=0; k<res.app.locals.maxSabreAPILengthOfStay && j<res.app.locals.maxLengthOfStay+1; k++){
 			arrayLengthOfStay.push(j);
 			j++;
 		}
@@ -27,16 +36,13 @@ exports.getAndStoreFlights = function(res, origin, destination, callback){
 
 	function sortSabreDatas(err, response, data){
 		if(err){
-			res.status(response.status).end(err);
+			res.status(response.statusCode);
+			callback(err);
 		}else{
 			if(response.statusCode === 200){
+				nbResults++;
+
 				data = JSON.parse(data);
-				var requestDate = new Date().getTime();
-				var search = new Search({
-					requestDate : requestDate,
-					origin : origin,
-					destination : destination
-				});
 
 				for(var i=0; i<data.FareInfo.length; i++){
 					var returnDateTime = data.FareInfo[i].ReturnDateTime;
@@ -55,8 +61,8 @@ exports.getAndStoreFlights = function(res, origin, destination, callback){
 						origin: origin,
 						destination: destination,
 						lengthOfStay:daysInDestination,
-						departureDate: data.FareInfo[i].DepartureDateTime,
-						returnDate:data.FareInfo[i].ReturnDateTime,
+						departureDate: moment(data.FareInfo[i].DepartureDateTime).toDate().getTime(),
+						returnDate:moment(data.FareInfo[i].ReturnDateTime).toDate().getTime(),
 						lowestFare:data.FareInfo[i].LowestFare.Fare,
 						currencyCode:data.FareInfo[i].CurrencyCode,
 						pointOfSaleCountry:saleCountry,
@@ -64,13 +70,13 @@ exports.getAndStoreFlights = function(res, origin, destination, callback){
 						daysToReturn:daysToReturn
 					});
 
-					search.daysToDeparture = daysToDeparture;
-					search.daysToReturn = daysToReturn;
-					search.daysInDestination = daysInDestination;
 					search.flights.push(flight);
 				}
 
-				search.save();
+				if(nbRequests === nbResults){
+					callback(null, search);
+					search.save();
+				}
 			}
 		}
 	}

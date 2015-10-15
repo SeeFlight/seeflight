@@ -3,8 +3,8 @@
  * Module dependencies.
  */
 var mongoose = require('mongoose');
-var app = require('./init')();
-var properties = require('./propertiesLoader.js')(app);
+var app = require('./config/init')();
+var properties = require('./services/propertiesLoader.js')(app);
 
 // Bootstrap db connection
 var db = mongoose.connect(app.locals.db, function(err) {

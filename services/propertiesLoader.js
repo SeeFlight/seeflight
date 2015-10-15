@@ -1,0 +1,14 @@
+var propertiesReader = require('properties-reader');
+
+module.exports = function(app){
+	var properties = propertiesReader(__dirname + '/../properties/seeflight.'+process.env.ENV+'.properties');
+	app.locals.localPort = properties.get('localPort');
+	app.locals.db = properties.get('db');
+	app.locals.sabreApiPath = properties.get('sabreApiPath');
+	app.locals.sabreApiToken = properties.get('sabreApiToken');
+	app.locals.cacheDuration = properties.get('cacheDuration');
+	app.locals.maxLengthOfStay = properties.get('maxLengthOfStay');
+	app.locals.maxSabreAPILengthOfStay = properties.get('maxSabreAPILengthOfStay');
+	app.locals.maxSabreAPILengthDepartureDates = properties.get('maxSabreAPILengthDepartureDates');
+	app.locals.saleCountry = properties.get('saleCountry');
+};

@@ -1,0 +1,36 @@
+/**
+ * Module dependencies.
+ */
+var mongoose = require('mongoose'),
+	Flight = mongoose.model('Flight'),
+	Search = mongoose.model('Search'),
+	_ = require('lodash');
+	seeflightService = require('../services/seeflightService');
+
+exports.getAllByCriteria = function(req, res){
+	var origin = req.query.origin;
+	var destination = req.query.destination;
+
+	var query = {
+		origin : req.query.origin,
+		destination : req.query.destination,
+		requestDate : {
+			$gt:new Date().getTime()-req.app.locals.cacheDuration
+		}
+	};
+
+	Search.findOne(query).exec(function(err, search) {
+		if (err) {
+			return res.status(400).send({
+				message: errorHandler.getErrorMessage(err)
+			});
+		} else {
+			if(search){
+				res.end(search);
+			}else{
+				seeflightService.getAndStoreFlights(res, origin, destination);
+				res.end();
+			}
+		}
+	});
+};

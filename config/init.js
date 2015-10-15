@@ -45,8 +45,12 @@ module.exports = function() {
 	app.use(helmet.ienoopen());
 	app.disable('x-powered-by');
 
+	getGlobbedFiles('./model/**/*.js').forEach(function(modelPath) {
+		require(path.resolve(modelPath));
+	});
+
 	// Globbing routing files
-	getGlobbedFiles('./app/routes/**/*.js').forEach(function(routePath) {
+	getGlobbedFiles('./routes/**/*.js').forEach(function(routePath) {
 		require(path.resolve(routePath))(app);
 	});
 

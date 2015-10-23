@@ -20,7 +20,7 @@ exports.getAndStoreFlights = function(res, origin, destination, callback){
 		destination : destination
 	});
 
-	for(var i=0; i<=nbRequests; i++){
+	for(var i=0; i<nbRequests; i++){
 		var arrayLengthOfStay = [];
 		var arrayDepartureDates = [];
 		for(var k=0; k<res.app.locals.maxSabreAPILengthOfStay && j<res.app.locals.maxLengthOfStay+1; k++){
@@ -31,7 +31,7 @@ exports.getAndStoreFlights = function(res, origin, destination, callback){
 			momentObj.add(1, 'days');
 			arrayDepartureDates.push(momentObj.format('YYYY-MM-DD'));
 		}
-		sabreAPIService.getLeadPriceCalendar(res, sortSabreDatas, origin, destination, arrayLengthOfStay, arrayDepartureDates, saleCountry);
+		sabreAPIService.getLeadPriceCalendar(res, false, sortSabreDatas, origin, destination, arrayLengthOfStay, arrayDepartureDates, saleCountry);
 	}
 
 	function sortSabreDatas(err, response, data){
@@ -39,8 +39,8 @@ exports.getAndStoreFlights = function(res, origin, destination, callback){
 			res.status(response.statusCode);
 			callback(err);
 		}else{
+			nbResults++;
 			if(response.statusCode === 200){
-				nbResults++;
 
 				data = JSON.parse(data);
 
@@ -76,6 +76,11 @@ exports.getAndStoreFlights = function(res, origin, destination, callback){
 				if(nbRequests === nbResults){
 					callback(null, search);
 					search.save();
+				}
+			}else{
+				if(nbRequests === nbResults){
+					res.status(response.statusCode);
+					callback("Unable to get Sabre results");
 				}
 			}
 		}

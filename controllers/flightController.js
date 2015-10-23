@@ -29,9 +29,12 @@ exports.getAllByCriteria = function(req, res){
 			}else{
 				seeflightService.getAndStoreFlights(res, origin, destination, function(err, data){
 					if(err){
-						res.json(err);
+						var error = {
+							message : err
+						};
+						res.json(error);
 					}else{
-						res.json(JSON.stringify(data));
+						res.json(data);
 					}
 				});
 			}

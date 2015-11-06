@@ -10,7 +10,6 @@ exports.getAndStoreFlights = function(res, origin, destination, callback){
 	var nbResults = 0;
 	var saleCountry = res.app.locals.saleCountry;
 	var j=1;
-	var momentObj = moment();
 
 	var requestDate = new Date().getTime();		
 
@@ -21,6 +20,7 @@ exports.getAndStoreFlights = function(res, origin, destination, callback){
 	});
 
 	for(var i=0; i<nbRequests; i++){
+		var momentObj = moment();
 		var arrayLengthOfStay = [];
 		var arrayDepartureDates = [];
 		for(var k=0; k<res.app.locals.maxSabreAPILengthOfStay && j<res.app.locals.maxLengthOfStay+1; k++){
@@ -36,7 +36,7 @@ exports.getAndStoreFlights = function(res, origin, destination, callback){
 
 	function sortSabreDatas(err, response, data){
 		if(err){
-			res.status(response.statusCode);
+			res.status(500);
 			callback(err);
 		}else{
 			nbResults++;

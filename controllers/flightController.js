@@ -25,7 +25,7 @@ exports.getAllByCriteria = function(req, res){
 			});
 		} else {
 			if(search){
-				res.json(JSON.stringify(search));
+				res.json(search);
 			}else{
 				seeflightService.getAndStoreFlights(res, origin, destination, function(err, data){
 					if(err){

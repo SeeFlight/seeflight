@@ -16,6 +16,7 @@ var ejs = require('ejs');
 var	path = require('path');
 var _ = require('lodash');
 var glob = require('glob');
+var cors = require('cors');
 
 module.exports = function() {
 	// Initialize express app
@@ -29,6 +30,7 @@ module.exports = function() {
 
 	var app = express();
 	app.use(bodyParser.json());
+	app.use(cors());
 
 	app.set('views', __dirname + '/views');
 	app.engine('html', ejs.renderFile);

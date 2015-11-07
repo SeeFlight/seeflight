@@ -52,8 +52,8 @@ exports.getAndStoreFlights = function(res, origin, destination, callback){
 					var momentDeparture = moment(departureDateTime);
 					var momentReturnDate = moment(returnDateTime);
 
-					var daysToDeparture = momentDeparture.diff(momentNow, 'days');
-					var daysToReturn = momentReturnDate.diff(momentNow, 'days');
+					var daysToDeparture = momentDeparture.diff(momentNow, 'days')+1;
+					var daysToReturn = momentReturnDate.diff(momentNow, 'days')+1;
 					var daysInDestination = momentReturnDate.diff(momentDeparture, 'days');
 
 					var flight = new Flight({

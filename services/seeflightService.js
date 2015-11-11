@@ -67,7 +67,8 @@ exports.getAndStoreFlights = function(res, origin, destination, callback){
 						currencyCode:data.FareInfo[i].CurrencyCode,
 						pointOfSaleCountry:saleCountry,
 						daysToDeparture:daysToDeparture,
-						daysToReturn:daysToReturn
+						daysToReturn:daysToReturn,
+						airlineCode : data.FareInfo[i].LowestFare.AirlineCodes[0]
 					});
 
 					search.flights.push(flight);

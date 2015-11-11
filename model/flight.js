@@ -22,7 +22,8 @@ var FlightSchema = new Schema({
 	pointOfSaleCountry:String,
 	seeflightId: Number,
 	daysToDeparture:Number,
-	daysToReturn:Number
+	daysToReturn:Number,
+	airlineCode:String
 });
 
 mongoose.model('Flight', FlightSchema);

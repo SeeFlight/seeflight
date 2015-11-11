@@ -48,7 +48,7 @@ exports.getAndStoreFlights = function(res, origin, destination, callback){
 					var returnDateTime = data.FareInfo[i].ReturnDateTime;
 					var departureDateTime = data.FareInfo[i].DepartureDateTime;
 
-					var momentNow = moment(requestDate);
+					var momentNow = moment();
 					var momentDeparture = moment(departureDateTime);
 					var momentReturnDate = moment(returnDateTime);
 

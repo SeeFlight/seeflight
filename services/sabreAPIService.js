@@ -6,7 +6,7 @@ var _this = this;
 
 exports.getLeadPriceCalendar = function(res, forceRefresh, callback, origin, destination, lengthofstay, departuredates, pointofsalecountry, minfare, maxfare){
 	checkSabreAuthentication(res, getLeadPriceCalendarCallback, forceRefresh);
-
+	
 	function getLeadPriceCalendarCallback(){
 		var options = {
 			host: res.app.locals.sabreApiPath,
@@ -17,8 +17,8 @@ exports.getLeadPriceCalendar = function(res, forceRefresh, callback, origin, des
 			}
 		};
 
-		options.path += '?origin='+origin;
-		options.path += '&destination='+destination;
+		options.path += '?origin='+encodeURIComponent(origin);
+		options.path += '&destination='+encodeURIComponent(destination);
 		if(departuredates){
 			options.path += '&departuredate=';
 			for(var i=0; i<departuredates.length; i++){

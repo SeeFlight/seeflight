@@ -16,6 +16,6 @@ var SearchSchema = new Schema({
 	origin: String,
 	destination: String,
 	flights : [Flight]
-});
+}, { collection: 'searches' });
 
 mongoose.model('Search', SearchSchema);

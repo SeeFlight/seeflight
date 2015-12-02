@@ -55,22 +55,25 @@ exports.getAndStoreFlights = function(res, origin, destination, pointOfSale, cal
 					var daysToReturn = momentReturnDate.diff(momentNow, 'days')+1;
 					var daysInDestination = momentReturnDate.diff(momentDeparture, 'days');
 
-					var flight = new Flight({
-						requestDate : requestDate,
-						origin: origin,
-						destination: destination,
-						lengthOfStay:daysInDestination,
-						departureDate: moment(data.FareInfo[i].DepartureDateTime).toDate().getTime(),
-						returnDate:moment(data.FareInfo[i].ReturnDateTime).toDate().getTime(),
-						lowestFare:data.FareInfo[i].LowestFare.Fare,
-						currencyCode:data.FareInfo[i].CurrencyCode,
-						pointOfSaleCountry:pointOfSale,
-						daysToDeparture:daysToDeparture,
-						daysToReturn:daysToReturn,
-						airlineCode : data.FareInfo[i].LowestFare.AirlineCodes[0]
-					});
+					if(data.FareInfo[i].LowestFare.Fare){
+						var flight = new Flight({
+							requestDate : requestDate,
+							origin: origin,
+							destination: destination,
+							lengthOfStay:daysInDestination,
+							departureDate: moment(data.FareInfo[i].DepartureDateTime).toDate().getTime(),
+							returnDate:moment(data.FareInfo[i].ReturnDateTime).toDate().getTime(),
+							lowestFare:data.FareInfo[i].LowestFare.Fare,
+							currencyCode:data.FareInfo[i].CurrencyCode,
+							pointOfSaleCountry:pointOfSale,
+							daysToDeparture:daysToDeparture,
+							daysToReturn:daysToReturn,
+							airlineCode : data.FareInfo[i].LowestFare.AirlineCodes[0]
+						});
+						
+						search.flights.push(flight);
+					}
 
-					search.flights.push(flight);
 				}
 
 				if(nbRequests === nbResults){

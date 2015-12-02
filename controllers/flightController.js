@@ -56,6 +56,7 @@ exports.getAllByCriteria = function(req, res){
 			events.splice(i-1,1);
 		}
 		if(events.length === 0){
+
 			if(originCity && destinationCity){
 				var originRegex = new RegExp('^'+originCity.cityCode+'$', 'i');
 				var destinationRegex = new RegExp('^'+destinationCity.cityCode+'$', 'i');

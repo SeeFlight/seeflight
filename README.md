@@ -31,4 +31,4 @@ ENV='dev' node app.js
 ENV='prod' node app.js
 ```
     
-The application is running on the port 8282 in development, 9292 in production
+The application is running on the port 8080 in development, 9090 in production

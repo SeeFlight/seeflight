@@ -3,10 +3,11 @@ var https = require('https');
 var moment = require('moment');
 var oAuthService = require('./oAuthService');
 var _this = this;
+var tries = 0;
 
 exports.getLeadPriceCalendar = function(res, forceRefresh, callback, origin, destination, lengthofstay, departuredates, pointofsalecountry, minfare, maxfare){
 	checkSabreAuthentication(res, getLeadPriceCalendarCallback, forceRefresh);
-	
+
 	function getLeadPriceCalendarCallback(){
 		var options = {
 			host: res.app.locals.sabreApiPath,
@@ -52,8 +53,11 @@ exports.getLeadPriceCalendar = function(res, forceRefresh, callback, origin, des
 				data += chunk;
 			});
 			resp.on('end', function () {
-				if(resp.statusCode === 401){
+				if(resp.statusCode === 401 && _this.tries < 4){
+					_this.tries++;
 					_this.getLeadPriceCalendar(res, true, callback, origin, destination, lengthofstay, departuredates, pointofsalecountry, minfare, maxfare);
+				}else if(res.statusCode === 401){
+					callback(null, resp, null);
 				}else{
 					callback(null, resp, data);
 				}

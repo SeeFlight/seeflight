@@ -5,6 +5,7 @@
  */
 var mongoose = require('mongoose'),
 	Flight = mongoose.model('Flight').schema,
+	Provider = mongoose.model('Provider').schema,
 	Schema = mongoose.Schema;
 
 /**
@@ -15,7 +16,8 @@ var SearchSchema = new Schema({
 	requestDate:String,
 	origin: String,
 	destination: String,
-	flights : [Flight]
+	flights : [Flight],
+	providers : [Provider]
 }, { collection: 'searches' });
 
 mongoose.model('Search', SearchSchema);

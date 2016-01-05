@@ -11,8 +11,11 @@ var mongoose = require('mongoose'),
  */
 var ProviderSchema = new Schema({
 	id: Schema.Types.ObjectId,
-	url : String,
-	jsonConf : String
+	name : String,
+	host : String,
+	path : String,
+	tokenId : String,
+	callback : String
 });
 
 mongoose.model('Provider', ProviderSchema);

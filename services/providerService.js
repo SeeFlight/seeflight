@@ -1,6 +1,7 @@
 var http = require('http');
 var https = require('https');
 var moment = require('moment');
+var XmlStream = require('xml-stream');
 var _this = this;
 var flightDAO = require('../dao/flightDAO');
 
@@ -13,12 +14,10 @@ exports.getBDVData = function(res, provider, flightId){
 		} else {
 			if(search){
 				for(var i=0; i<search.flights.length;i++){
-					var host = provider.host;
-					var path = provider.path;
 
 					var options = {
-						host: host,
-						path: path,
+						host: provider.host,
+						path: provider.path,
 						method: 'GET'
 					};
 
@@ -34,26 +33,48 @@ exports.getBDVData = function(res, provider, flightId){
 					options.path += '&bebes=0';
 					options.path += '&device=D';
 
-					var request = https.request(options, function(resp){
-						var data = "";
-						resp.on('data', function (chunk) {
-							data += chunk;
+					http.get(options, function(resp){	
+						resp.on('response', function (response) {
+							console.log('response');
+							response.setEncoding('utf8');
+							var xml = new XmlStream(response);
+							
+							xml.on('updateElement: getXmlSearch', function(search) {
+								if(search.url){
+									http.get(options, function(resp){	
+										resp.on('response', function (response) {
+											response.setEncoding('utf8');
+											var xml = new XmlStream(response);
+											
+											xml.on('updateElement: getXmlSearch', function(search) {
+												if(search.url){
+
+												}
+								}
+								// Change <title> child to a new value, composed of its previous value
+								// and the value of <pubDate> child.
+								item.title = item.title.match(/^[^:]+/)[0] + ' on ' +
+								  item.pubDate.replace(/ \+[0-9]{4}/, '');
+							});
 						});
 						resp.on('end', function () {
-							if(resp.statusCode === 401 && _this.tries < 4){
-								_this.tries++;
-								_this.getLeadPriceCalendar(res, true, callback, origin, destination, lengthofstay, departuredates, pointofsalecountry, minfare, maxfare);
-							}else if(res.statusCode === 401){
-								callback(null, resp, null);
-							}else{
-								callback(null, resp, data);
+							console.log('end');
+							var paiement = {};
+							if(resp.statusCode === 200){
+								paiement = JSON.parse(data);
+								var price = paiement.debitedFunds.amount.toString();
+								var euro = price.slice(0, -2);
+								var cents = price.substr(euro.length, 2);
+								paiement.debitedFunds.amount = euro+"."+cents;
 							}
+							
+							res.locals.currentPage = "paiements";
+							res.render('paiement.html', {paiement:paiement});
 						});
 					}).on("error", function(e){
-						console.error('Error when calling :\n'+options+'\nMessage :\n'+e.message);
-						callback(e);
+						logger.logRequestError(options, e.message);
+						res.render('paiements.html');
 					});
-					request.end();
 				}
 
 				res.status(200).end();

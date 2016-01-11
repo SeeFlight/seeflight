@@ -33,46 +33,15 @@ exports.getBDVData = function(res, provider, flightId){
 					options.path += '&bebes=0';
 					options.path += '&device=D';
 
-					http.get(options, function(resp){	
-						resp.on('response', function (response) {
-							console.log('response');
-							response.setEncoding('utf8');
-							var xml = new XmlStream(response);
-							
-							xml.on('updateElement: getXmlSearch', function(search) {
-								if(search.url){
-									http.get(options, function(resp){	
-										resp.on('response', function (response) {
-											response.setEncoding('utf8');
-											var xml = new XmlStream(response);
-											
-											xml.on('updateElement: getXmlSearch', function(search) {
-												if(search.url){
-
-												}
-								}
-								// Change <title> child to a new value, composed of its previous value
-								// and the value of <pubDate> child.
-								item.title = item.title.match(/^[^:]+/)[0] + ' on ' +
-								  item.pubDate.replace(/ \+[0-9]{4}/, '');
-							});
-						});
-						resp.on('end', function () {
-							console.log('end');
-							var paiement = {};
-							if(resp.statusCode === 200){
-								paiement = JSON.parse(data);
-								var price = paiement.debitedFunds.amount.toString();
-								var euro = price.slice(0, -2);
-								var cents = price.substr(euro.length, 2);
-								paiement.debitedFunds.amount = euro+"."+cents;
-							}
-							
-							res.locals.currentPage = "paiements";
-							res.render('paiement.html', {paiement:paiement});
+					http.get(options).on('response', function (response) {
+  						response.setEncoding('utf8');
+						var xml = new XmlStream(response);
+						
+						xml.on('updateElement: getXmlSearch', function(search) {
+							console.log(search);
 						});
 					}).on("error", function(e){
-						logger.logRequestError(options, e.message);
+						console.log(e);
 						res.render('paiements.html');
 					});
 				}

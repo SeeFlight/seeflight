@@ -14,35 +14,36 @@ exports.getBDVData = function(res, provider, flightId){
 		} else {
 			if(search){
 				for(var i=0; i<search.flights.length;i++){
+					var url = provider.protocol+"://"+provider.host+provider.path;
 
-					var options = {
-						host: provider.host,
-						path: provider.path,
-						method: 'GET'
-					};
+					url += '?idPart=PID_BDVL_44a&departure='+search.origin;
+					url += '&arrival='+search.destination;
+					url += '&dateDep='+moment(parseInt(search.flights[i].departureDate)).format('YYYY-MM-DD'); 
+					url += '&dateRet='+moment(parseInt(search.flights[i].returnDate)).format('YYYY-MM-DD'); 
+					url += '&allerRet=R';
+					url += '&classe=E';
+					url += '&adultes=1';
+					url += '&enfants=0';
+					url += '&bebes=0';
+					url += '&device=D';
 
-					options.path += '?idPart='+provider.tokenId;
-					options.path += '&departure='+search.origin;
-					options.path += '&arrival='+search.destination;
-					options.path += '&dateDep='+moment(parseInt(search.flights[i].departureDate)).format('YYYY-MM-DD'); 
-					options.path += '&dateRet='+moment(parseInt(search.flights[i].returnDate)).format('YYYY-MM-DD'); 
-					options.path += '&allerRet=R';
-					options.path += '&classe=E';
-					options.path += '&adultes=1';
-					options.path += '&enfants=0';
-					options.path += '&bebes=0';
-					options.path += '&device=D';
-
-					http.get(options).on('response', function (response) {
-  						response.setEncoding('utf8');
-						var xml = new XmlStream(response);
-						
-						xml.on('updateElement: getXmlSearch', function(search) {
-							console.log(search);
-						});
+					console.log(url);
+					http.get(url, function(resp){
+					}).on('response', function (response) {
+						if(response.statusCode === 302){
+							url = response.headers["location"];
+							http.get(url, function(resp){
+							}).on('response', function(response){
+		  						response.setEncoding('utf8');
+								var xml = new XmlStream(response);
+								
+								xml.on('updateElement: getXmlSearch', function(search) {
+									console.log(search);
+								});
+							});
+						}
 					}).on("error", function(e){
 						console.log(e);
-						res.render('paiements.html');
 					});
 				}
 

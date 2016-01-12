@@ -12,6 +12,7 @@ var mongoose = require('mongoose'),
 var ProviderSchema = new Schema({
 	id: Schema.Types.ObjectId,
 	name : String,
+	protocol : String,
 	host : String,
 	path : String,
 	tokenId : String,

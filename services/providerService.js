@@ -28,6 +28,7 @@ exports.getBDVData = function(res, provider, flightId, departureDate, returnDate
 				http.get(url).on('response', function (response) {
 					if(response.statusCode === 302){
 						url = response.headers["location"];
+
 						http.get(url).on('response', function(response){
 	  						response.setEncoding('utf8');
 							var xml = new XmlStream(response);
@@ -87,14 +88,32 @@ exports.getBDVData = function(res, provider, flightId, departureDate, returnDate
 
 			xml.collect('trip');
 			xml.on('endElement: offers', function(offers) {
-				var flight = {
+				var offer = {
 					origin : flight.origin,
 					destination : flight.destination,
 					departureDate : departureDate,
 					returnDate : returnDate,
-					lowerPrice : offers.trip[0].totalPrice
+					provider : provider.name,
+					price : offers.trip[0].totalPrice,
+					deepLink : offers.trip[0].deepLink
 				};
-				callback(null, flight);
+				var price = {
+					provider : provider.name,
+					price : offers.trip[0].totalPrice,
+					deepLink : offers.trip[0].deepLink
+				};
+				flightDAO.updateFlightPrice(flightId, flight, price, function(err, data){
+					if(err){
+						callback(err);
+					}else{
+						if(data){
+							callback(null, offer);
+						}else{
+							var error = "Not able to store BDV offer";
+							callback(error);
+						}
+					}
+				});
 			});
 		});
 	}

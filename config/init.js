@@ -47,9 +47,15 @@ module.exports = function() {
 	app.use(helmet.ienoopen());
 	app.disable('x-powered-by');
 
-	getGlobbedFiles('./model/**/*.js').forEach(function(modelPath) {
-		require(path.resolve(modelPath));
-	});
+	//getGlobbedFiles('./model/**/*.js').forEach(function(modelPath) {
+	//	require(path.resolve(modelPath));
+	//});
+	require(path.resolve('./model/airport.js'));
+	require(path.resolve('./model/city.js'));
+	require(path.resolve('./model/price.js'));
+	require(path.resolve('./model/provider.js'));
+	require(path.resolve('./model/flight.js'));
+	require(path.resolve('./model/search.js'));
 
 	// Globbing routing files
 	getGlobbedFiles('./routes/**/*.js').forEach(function(routePath) {

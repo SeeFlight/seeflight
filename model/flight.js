@@ -4,6 +4,7 @@
  * Module dependencies.
  */
 var mongoose = require('mongoose'),
+	Price = mongoose.model('Price').schema,
 	Schema = mongoose.Schema;
 
 /**
@@ -18,6 +19,7 @@ var FlightSchema = new Schema({
 	departureDate: String,
 	returnDate:String,
 	lowestFare:Number,
+	prices:[Price],
 	currencyCode:String,
 	pointOfSaleCountry:String,
 	seeflightId: Number,

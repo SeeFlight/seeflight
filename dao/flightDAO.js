@@ -20,3 +20,26 @@ exports.getById = function(id, callback){
 		callback(err, search);
 	});
 };
+
+exports.updateFlightPrice = function(id, flight, price, callback){
+	var query = {
+		'_id': new mongoose.Types.ObjectId(id),
+		'flights.departureDate' : flight.departureDate,
+		'flights.returnDate' : flight.returnDate
+	};
+	var updateDoc = {
+		'deepLink' : price.deeplink,
+		'price' : price.price,
+		'provider' : price.provider
+	};
+	var priceField = {
+		'flights.$.prices' : updateDoc
+	};
+	var pushDocument = {
+		$push : priceField
+	};
+
+	Search.findOneAndUpdate(query, pushDocument, function(err, doc){
+	    callback(err, doc);
+	});
+};

@@ -39,15 +39,13 @@ exports.getBDVData = function(res, provider, flightId){
 								xml.on('updateElement: getXmlSearch', function(search) {
 									if(search.url){
 										url = search.url;
-										http.get(url, function(resp){
-
-										}).on('response'){
+										http.get(url).on('response', function(response){
 					  						response.setEncoding('utf8');
 											var xml = new XmlStream(response);
 											xml.on('updateElement: getXmlSearch', function(search) {
 												console.log(search);
 											});
-										};
+										});
 									}
 								});
 							});

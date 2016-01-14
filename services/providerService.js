@@ -27,7 +27,6 @@ exports.getBDVData = function(res, provider, flightId){
 					url += '&bebes=0';
 					url += '&device=D';
 
-					console.log(url);
 					http.get(url, function(resp){
 					}).on('response', function (response) {
 						if(response.statusCode === 302){
@@ -38,7 +37,18 @@ exports.getBDVData = function(res, provider, flightId){
 								var xml = new XmlStream(response);
 								
 								xml.on('updateElement: getXmlSearch', function(search) {
-									console.log(search);
+									if(search.url){
+										url = search.url;
+										http.get(url, function(resp){
+
+										}).on('response'){
+					  						response.setEncoding('utf8');
+											var xml = new XmlStream(response);
+											xml.on('updateElement: getXmlSearch', function(search) {
+												console.log(search);
+											});
+										};
+									}
 								});
 							});
 						}

@@ -75,7 +75,7 @@ exports.getAllByCriteria = function(req, res){
 						if(search){
 							res.json(search);
 						}else{
-							seeflightService.getAndStoreFlights(res, originCode, destinationCode, originCity.pointOfSale, function(err, data){
+							seeflightService.getAndStoreFlights(res, originCode, destinationCode, originCity.pointOfSale, destinationCity.pointOfSale, function(err, data){
 								if(err){
 									var error = {
 										message : err

@@ -6,7 +6,7 @@ var Search = mongoose.model('Search');
 var Flight = mongoose.model('Flight');
 var providerDAO = require('../dao/providerDAO');
 
-exports.getAndStoreFlights = function(res, origin, destination, pointOfSale, callback){
+exports.getAndStoreFlights = function(res, origin, destination, originPointOfSale, destinationPointOfSale, callback){
 	var nbRequests = Math.ceil(res.app.locals.maxLengthOfStay/res.app.locals.maxSabreAPILengthOfStay);
 	var nbResults = 0;
 	var j=1;
@@ -31,7 +31,7 @@ exports.getAndStoreFlights = function(res, origin, destination, pointOfSale, cal
 			momentObj.add(1, 'days');
 			arrayDepartureDates.push(momentObj.format('YYYY-MM-DD'));
 		}
-		sabreAPIService.getLeadPriceCalendar(res, false, sortSabreDatas, origin, destination, arrayLengthOfStay, arrayDepartureDates, pointOfSale);
+		sabreAPIService.getLeadPriceCalendar(res, false, sortSabreDatas, origin, destination, arrayLengthOfStay, arrayDepartureDates, originPointOfSale);
 	}
 
 	function sortSabreDatas(err, response, data){
@@ -80,12 +80,12 @@ exports.getAndStoreFlights = function(res, origin, destination, pointOfSale, cal
 									returnDate:moment(data.FareInfo[i].ReturnDateTime).toDate().getTime(),
 									lowestFare:data.FareInfo[i].LowestFare.Fare,
 									currencyCode:data.FareInfo[i].CurrencyCode,
-									pointOfSaleCountry:pointOfSale,
+									pointOfSaleCountry:originPointOfSale,
+									pointOfSaleDestinationCountry:destinationPointOfSale,
 									daysToDeparture:daysToDeparture,
 									daysToReturn:daysToReturn,
 									airlineCode : data.FareInfo[i].LowestFare.AirlineCodes[0]
 								});
-								
 								search.flights.push(flight);
 							}
 						}

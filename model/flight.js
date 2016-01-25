@@ -22,6 +22,7 @@ var FlightSchema = new Schema({
 	prices:[Price],
 	currencyCode:String,
 	pointOfSaleCountry:String,
+	pointOfSaleDestinationCountry:String,
 	seeflightId: Number,
 	daysToDeparture:Number,
 	daysToReturn:Number,

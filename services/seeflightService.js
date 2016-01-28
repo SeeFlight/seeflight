@@ -86,6 +86,7 @@ exports.getAndStoreFlights = function(res, origin, destination, originPointOfSal
 									daysToReturn:daysToReturn,
 									airlineCode : data.FareInfo[i].LowestFare.AirlineCodes[0]
 								});
+								priceDirtyChecking(flight);
 								search.flights.push(flight);
 							}
 						}
@@ -105,3 +106,62 @@ exports.getAndStoreFlights = function(res, origin, destination, originPointOfSal
 		}
 	}
 };
+
+function priceDirtyChecking(flight){
+	if(flight.pointOfSaleCountry === 'US' && flight.pointOfSaleDestinationCountry === 'US' && flight.airlineCode != 'SY'){
+		flight.deepLink = 'http://www.dpbolvw.net/click-7889275-10581071?GOTO=EXPFLTWIZ&load=1&TripType=Roundtrip&FrAirport=';
+		flight.deepLink += flight.origin;
+		flight.deepLink += '&ToAirport=';
+		flight.deepLink += flight.destination;
+		flight.deepLink += '&FromDate=';
+		flight.deepLink += moment(parseInt(flight.departureDate)).format('MM/DD/YYYY');
+		flight.deepLink += '&ToDate=';
+		flight.deepLink += moment(parseInt(flight.returnDate)).format('MM/DD/YYYY');
+		flight.deepLink += '&NumAdult=1';
+	}else if(flight.pointOfSaleCountry === 'GB'){			
+		if(flight.origin === 'LON' && flight.airlineCode === 'D8'){
+			flight.deepLink = 'http://tracking.publicidees.com/clic.php?progid=515&partid=47438&dpl=http://www.govoyages.com/?mktportal=publicidees&mktportal=publicidees&utm_source=publicidees&utm_medium=affiliates&utm_term=flight&utm_campaign=47438&utm_content=metasearch&#/results/type=R;dep=';
+			flight.deepLink += moment(parseInt(flight.departureDate)).format('YYYY-MM-DD');
+			flight.deepLink += ';from=';
+			flight.deepLink += flight.origin;
+			flight.deepLink += ';to=';
+			flight.deepLink += flight.destination;
+			flight.deepLink += ';ret=';
+			flight.deepLink += moment(parseInt(flight.returnDate)).format('YYYY-MM-DD');
+			flight.deepLink += ';collectionmethod=false;internalSearch=true';
+		}else{
+			flight.deepLink = 'http://www.tripsta.co.uk/airline-tickets/results?dep=('
+			flight.deepLink += flight.origin;
+			flight.deepLink += ')&arr=(';
+			flight.deepLink += flight.destination;
+			flight.deepLink += ')&isRoundtrip=1&obDate=';
+			flight.deepLink += moment(parseInt(flight.departureDate)).format('DD/MM/YYYY');
+			flight.deepLink += '&ibDate=';
+			flight.deepLink += moment(parseInt(flight.returnDate)).format('DD/MM/YYYY');
+			flight.deepLink += '&obTime=&ibTime=&extendedDates=0&resetStaticSearchResults=1&passengersAdult=1&passengersChild=0&passengersInfant=0&airlineCode=&class=&directFlightsOnly=0';
+		}
+	}else if(flight.pointOfSaleCountry === 'FR'){
+		flight.deepLink = 'http://tracking.publicidees.com/clic.php?progid=515&partid=47438&dpl=http://www.govoyages.com/?mktportal=publicidees&mktportal=publicidees&utm_source=publicidees&utm_medium=affiliates&utm_term=flight&utm_campaign=47438&utm_content=metasearch&#/results/type=R;dep=';
+		flight.deepLink += moment(parseInt(flight.departureDate)).format('YYYY-MM-DD');
+		flight.deepLink += ';from=';
+		flight.deepLink += flight.origin;
+		flight.deepLink += ';to=';
+		flight.deepLink += flight.destination;
+		flight.deepLink += ';ret=';
+		flight.deepLink += moment(parseInt(flight.returnDate)).format('YYYY-MM-DD');
+		flight.deepLink += ';collectionmethod=false;airlinescodes=AF,IB,VY,UX,LH,KL,LX,SN,D8,UA,OS,SU,AA,AZ;internalSearch=true';
+		if(flight.pointOfSaleDestinationCountry === 'FR'){
+			flight.lowestFare = flight.lowestFare-40;
+		}
+	}else{
+		flight.deepLink = 'http://www.cheapoair.com/fpnext/Air/RemoteSearch/?tabid=1832&from=';
+		flight.deepLink += flight.origin;
+		flight.deepLink += '&to=';
+		flight.deepLink += flight.destination;
+		flight.deepLink += '&fromDt=';
+		flight.deepLink += moment(parseInt(flight.departureDate)).format('MM/DD/YYYY');
+		flight.deepLink += '&toDt=';
+		flight.deepLink += moment(parseInt(flight.returnDate)).format('MM/DD/YYYY');
+		flight.deepLink += '&rt=true&daan=&raan=&dst=&rst=&ad=1&se=0&ch=0&infl=0&infs=0&class=1&airpref=&preftyp=1&searchflxdt=false&IsNS=false&searchflxarpt=false&childAge=';
+	}
+}

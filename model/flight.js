@@ -19,7 +19,7 @@ var FlightSchema = new Schema({
 	departureDate: String,
 	returnDate:String,
 	lowestFare:Number,
-	prices:[Price],
+	deepLink:String,
 	currencyCode:String,
 	pointOfSaleCountry:String,
 	pointOfSaleDestinationCountry:String,

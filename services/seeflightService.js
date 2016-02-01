@@ -153,6 +153,16 @@ function priceDirtyChecking(flight){
 		if(flight.pointOfSaleDestinationCountry === 'FR'){
 			flight.lowestFare = flight.lowestFare-40;
 		}
+	}else if(flight.pointOfSaleCountry === 'PT'){
+		flight.deepLink = 'http://tracking.publicidees.com/clic.php?progid=515&partid=47438&dpl=http://www.govoyages.com/?mktportal=publicidees&mktportal=publicidees&utm_source=publicidees&utm_medium=affiliates&utm_term=flight&utm_campaign=47438&utm_content=metasearch&#/results/type=R;dep=';
+		flight.deepLink += moment(parseInt(flight.departureDate)).format('YYYY-MM-DD');
+		flight.deepLink += ';from=';
+		flight.deepLink += flight.origin;
+		flight.deepLink += ';to=';
+		flight.deepLink += flight.destination;
+		flight.deepLink += ';ret=';
+		flight.deepLink += moment(parseInt(flight.returnDate)).format('YYYY-MM-DD');
+		flight.deepLink += ';collectionmethod=false;internalSearch=true';
 	}else{
 		flight.deepLink = 'http://www.cheapoair.com/fpnext/Air/RemoteSearch/?tabid=1832&from=';
 		flight.deepLink += flight.origin;

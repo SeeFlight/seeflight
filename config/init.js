@@ -56,6 +56,7 @@ module.exports = function() {
 	require(path.resolve('./model/provider.js'));
 	require(path.resolve('./model/flight.js'));
 	require(path.resolve('./model/search.js'));
+	require(path.resolve('./model/user.js'));
 
 	// Globbing routing files
 	getGlobbedFiles('./routes/**/*.js').forEach(function(routePath) {

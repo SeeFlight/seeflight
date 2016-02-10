@@ -140,6 +140,16 @@ function priceDirtyChecking(flight){
 			flight.deepLink += moment(parseInt(flight.returnDate)).format('DD/MM/YYYY');
 			flight.deepLink += '&obTime=&ibTime=&extendedDates=0&resetStaticSearchResults=1&passengersAdult=1&passengersChild=0&passengersInfant=0&airlineCode=&class=&directFlightsOnly=0';
 		}
+	}else if(((flight.origin === 'PAR' || flight.origin === 'ORY' || flight.origin === 'CDG') && (flight.destination === 'BCN' || flight.destination === 'VCE' || flight.destination === 'MAD' || flight.destination === 'ROM')) || ((flight.destination === 'PAR' || flight.destination === 'ORY' || flight.destination === 'CDG') && (flight.origin === 'BCN' || flight.origin === 'VCE' || flight.origin === 'MAD' || flight.origin === 'ROM'))){
+		flight.deepLink = 'http://tracking.publicidees.com/clic.php?progid=515&partid=47438&dpl=http://www.govoyages.com/?mktportal=publicidees&mktportal=publicidees&utm_source=publicidees&utm_medium=affiliates&utm_term=flight&utm_campaign=47438&utm_content=metasearch&#/results/type=R;dep=';
+		flight.deepLink += moment(parseInt(flight.departureDate)).format('YYYY-MM-DD');
+		flight.deepLink += ';from=';
+		flight.deepLink += flight.origin;
+		flight.deepLink += ';to=';
+		flight.deepLink += flight.destination;
+		flight.deepLink += ';ret=';
+		flight.deepLink += moment(parseInt(flight.returnDate)).format('YYYY-MM-DD');
+		flight.deepLink += ';collectionmethod=false;airlinescodes=AF,IB,VY,UX,LH,KL,LX,SN,D8,UA,OS,SU,TP,AA,AZ,DY;internalSearch=true';
 	}else if(flight.pointOfSaleCountry === 'FR'){
 		flight.deepLink = 'http://tracking.publicidees.com/clic.php?progid=515&partid=47438&dpl=http://www.govoyages.com/?mktportal=publicidees&mktportal=publicidees&utm_source=publicidees&utm_medium=affiliates&utm_term=flight&utm_campaign=47438&utm_content=metasearch&#/results/type=R;dep=';
 		flight.deepLink += moment(parseInt(flight.departureDate)).format('YYYY-MM-DD');
@@ -149,7 +159,7 @@ function priceDirtyChecking(flight){
 		flight.deepLink += flight.destination;
 		flight.deepLink += ';ret=';
 		flight.deepLink += moment(parseInt(flight.returnDate)).format('YYYY-MM-DD');
-		flight.deepLink += ';collectionmethod=false;airlinescodes=AF,IB,VY,UX,LH,KL,LX,SN,D8,UA,OS,SU,AA,AZ;internalSearch=true';
+		flight.deepLink += ';collectionmethod=false;internalSearch=true';
 		if(flight.pointOfSaleDestinationCountry === 'FR'){
 			flight.lowestFare = flight.lowestFare-40;
 		}

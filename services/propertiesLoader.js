@@ -10,6 +10,7 @@ module.exports = function(app){
 	app.locals.sabreApiProtocol = properties.get('sabreApiProtocol');
 	app.locals.cacheDuration = properties.get('cacheDuration');
 	app.locals.maxLengthOfStay = properties.get('maxLengthOfStay');
+	app.locals.maxSeeflightDepartureDays = properties.get('maxSeeflightDepartureDays');
 	app.locals.maxSabreAPILengthOfStay = properties.get('maxSabreAPILengthOfStay');
 	app.locals.maxSabreAPILengthDepartureDates = properties.get('maxSabreAPILengthDepartureDates');
 	app.locals.saleCountry = properties.get('saleCountry');

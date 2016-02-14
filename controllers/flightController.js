@@ -7,7 +7,8 @@ var mongoose = require('mongoose'),
 	_ = require('lodash');
 	seeflightService = require('../services/seeflightService')
 	cityDAO = require('../dao/cityDAO'),
-	flightDAO = require('../dao/flightDAO');
+	flightDAO = require('../dao/flightDAO'),
+	moment = require('moment');
 
 exports.getAllByCriteria = function(req, res){
 	var origin = req.query.origin;

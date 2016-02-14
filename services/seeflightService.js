@@ -27,7 +27,7 @@ exports.getAndStoreFlights = function(res, origin, destination, originPointOfSal
 			arrayLengthOfStay.push(j);
 			j++;
 		}
-		for(var l=0; l<res.app.locals.maxLengthOfStay; l++){
+		for(var l=0; l<res.app.locals.maxSeeflightDepartureDays; l++){
 			momentObj.add(1, 'days');
 			arrayDepartureDates.push(momentObj.format('YYYY-MM-DD'));
 		}

@@ -63,7 +63,7 @@ exports.getLeadPriceCalendar = function(res, forceRefresh, callback, origin, des
 				}
 			});
 		}).on("error", function(e){
-			console.error('Error when calling :\n'+options+'\nMessage :\n'+e.message);
+			console.error('Error when calling :\n'+JSON.stringify(options)+'\nMessage :\n'+e.message);
 			callback(e);
 		});
 		request.end();	

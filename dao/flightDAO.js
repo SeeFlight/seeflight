@@ -1,5 +1,6 @@
 var mongoose = require('mongoose'),
-	Search = mongoose.model('Search');
+	Search = mongoose.model('Search'),
+	Price = mongoose.model('Price');
 
 exports.getByOriginAndDestination = function(origin, destination, requestDate, callback){
 	var query  = Search.where({ 
@@ -23,14 +24,14 @@ exports.getById = function(id, callback){
 
 exports.updateFlightPrice = function(id, flight, price, callback){
 	var query = {
-		'_id': new mongoose.Types.ObjectId(id),
+		_id: new mongoose.Types.ObjectId(id),
 		'flights.departureDate' : flight.departureDate,
 		'flights.returnDate' : flight.returnDate
 	};
 	var updateDoc = {
-		'deepLink' : price.deeplink,
-		'price' : price.price,
-		'provider' : price.provider
+		deeplink : price.deeplink,
+		price : price.price,
+		provider : price.provider
 	};
 	var priceField = {
 		'flights.$.prices' : updateDoc
@@ -38,8 +39,7 @@ exports.updateFlightPrice = function(id, flight, price, callback){
 	var pushDocument = {
 		$push : priceField
 	};
-
-	Search.findOneAndUpdate(query, pushDocument, function(err, doc){
+	Search.update(query, pushDocument, function(err, doc){
 	    callback(err, doc);
 	});
 };

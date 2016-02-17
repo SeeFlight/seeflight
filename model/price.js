@@ -11,8 +11,9 @@ var mongoose = require('mongoose'),
  */
 var PriceSchema = new Schema({
 	id: Schema.Types.ObjectId,
-	deepLink: String,
+	deeplink: String,
 	provider: String,
+	currency : String,
 	price: Number
 });
 

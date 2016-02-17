@@ -2,6 +2,7 @@ var http = require('http');
 var https = require('https');
 var moment = require('moment');
 var XmlStream = require('xml-stream');
+var soap = require('soap');
 var _this = this;
 var flightDAO = require('../dao/flightDAO');
 
@@ -35,7 +36,7 @@ exports.getBDVData = function(res, provider, flightId, departureDate, returnDate
 							
 							xml.on('updateElement: getXmlSearch', function(search) {
 								if(search.url){
-									getResults(search.url, new Date().getTime(), search);
+									getResults(search.url, new Date().getTime());
 								}else{
 									var error = "Unable to get the link from BDV";
 									callback(error);
@@ -57,14 +58,14 @@ exports.getBDVData = function(res, provider, flightId, departureDate, returnDate
 		}
 	});
 
-	function getResults(url, timestamp, flight){
+	function getResults(url, timestamp){
 		http.get(url).on('response', function(response){
 			response.setEncoding('utf8');
 			var xml = new XmlStream(response);
 			xml.on('updateElement: getXmlSearch', function(search) {
 				if(search.result && search.result.type === 'searching'){
 					setTimeout(function(){
-						getResults(url, timestamp, flight);
+						getResults(url, timestamp);
 					}, 5000);
 				}else if(search.result && search.result.type === 'ok'){
 
@@ -74,7 +75,7 @@ exports.getBDVData = function(res, provider, flightId, departureDate, returnDate
 				}else if(search.errors && search.errors.error.type === 'timeout'){
 					if((new Date().getTime()-timestamp)<=150000){
 						setTimeout(function(){
-							getResults(url, timestamp, flight);
+							getResults(url, timestamp);
 						}, 5000);
 					}else{
 						var error = "timeout "+(new Date().getTime()-timestamp)/1000+" sec "+url;
@@ -88,14 +89,9 @@ exports.getBDVData = function(res, provider, flightId, departureDate, returnDate
 
 			xml.collect('trip');
 			xml.on('endElement: offers', function(offers) {
-				var offer = {
-					origin : flight.origin,
-					destination : flight.destination,
+				var flight = {
 					departureDate : departureDate,
-					returnDate : returnDate,
-					provider : provider.name,
-					price : offers.trip[0].totalPrice,
-					deepLink : offers.trip[0].deepLink
+					returnDate : returnDate
 				};
 				var price = {
 					provider : provider.name,
@@ -107,7 +103,7 @@ exports.getBDVData = function(res, provider, flightId, departureDate, returnDate
 						callback(err);
 					}else{
 						if(data){
-							callback(null, offer);
+							callback(null, price);
 						}else{
 							var error = "Not able to store BDV offer";
 							callback(error);
@@ -117,4 +113,88 @@ exports.getBDVData = function(res, provider, flightId, departureDate, returnDate
 			});
 		});
 	}
+};
+
+exports.getBravoflyData = function(res, provider, flightId, departureDate, returnDate, callback){
+	flightDAO.getById(flightId, function(err, search){
+		if (err) {
+			callback(err);
+			res.status(400);
+		} else {
+			if(search){
+				var soapRequest = '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xmlns:tns="http://webservices.bravofly.com/">';
+				soapRequest += '<soap:Body>';
+				soapRequest += '<BravoFlySearchWs:searchFlights xmlns:BravoFlySearchWs="http://webservices.bravofly.com/">';
+				soapRequest += '<idBusinessProfile>'+provider.login+'</idBusinessProfile>';
+				soapRequest += '<password>'+provider.password+'</password>';
+				soapRequest += '<departureAirport>'+search.origin+'</departureAirport>';
+				soapRequest += '<arrivalAirport>'+search.destination+'</arrivalAirport>';
+				soapRequest += '<roundTrip>true</roundTrip>';
+				soapRequest += '<outboundDate>'+moment(parseInt(departureDate)).format('YYYY-MM-DD')+'</outboundDate>';
+				soapRequest += '<returnDate>'+moment(parseInt(returnDate)).format('YYYY-MM-DD')+'</returnDate>';
+				soapRequest += '<adults>1</adults>';
+				soapRequest += '<childs>0</childs>';
+				soapRequest += '<infants>0</infants>';
+				soapRequest += '<language>'+search.flights[0].pointOfSaleCountry+'</language>';
+				soapRequest += '<numberOfResults>1</numberOfResults>'
+				soapRequest += '</BravoFlySearchWs:searchFlights>';
+				soapRequest += '</soap:Body>';
+				soapRequest += '</soap:Envelope>';
+
+				var options = {
+					host: provider.host,
+					port: 80,
+					path: provider.path,
+					method: 'POST',
+					headers: {
+						'Content-Type': 'text/xml'
+					}
+				};
+				
+				var put = http.request(options).on("response", function(response){
+					var xml = new XmlStream(response);
+							
+					xml.collect('trips');
+					xml.on('endElement: return', function(response) {
+						if(response.idRequest){
+							var flight = {
+								departureDate : departureDate,
+								returnDate : returnDate
+							};
+							var price = {
+								provider : provider.name,
+								price : Math.ceil(response.trips[0].amount),
+								currency : response.trips[0].currency,
+								deeplink : response.trips[0].deeplink+"&partId="+provider.tokenId
+							};
+							flightDAO.updateFlightPrice(flightId, flight, price, function(err, data){
+								if(err){
+									callback(err);
+								}else{
+									if(data){
+										callback(null, price);
+									}else{
+										var error = "Not able to store Bravofly offer";
+										callback(error);
+									}
+								}
+							});
+						}else{
+							var error = "Unable to get the deep link from Bravofly";
+							callback(error);
+						}
+					});
+				}).on("error", function(e){
+					console.error(e);
+					res.writeHead(500);
+					callback(e);
+				});
+				put.write(soapRequest);
+				put.end();
+			}else{
+				var error = "Flight ID not found";
+				callback(error);
+			}
+		}
+	});
 };

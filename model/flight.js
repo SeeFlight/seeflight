@@ -26,7 +26,8 @@ var FlightSchema = new Schema({
 	seeflightId: Number,
 	daysToDeparture:Number,
 	daysToReturn:Number,
-	airlineCode:String
+	airlineCode:String,
+	prices : [Price]
 });
 
 mongoose.model('Flight', FlightSchema);

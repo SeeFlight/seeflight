@@ -16,7 +16,10 @@ var ProviderSchema = new Schema({
 	host : String,
 	path : String,
 	tokenId : String,
-	callback : String
+	login : String,
+	password : String,
+	callback : String,
+	active : Boolean
 });
 
 mongoose.model('Provider', ProviderSchema);

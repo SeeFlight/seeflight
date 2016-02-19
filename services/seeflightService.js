@@ -126,6 +126,22 @@ function priceDirtyChecking(flight){
 			provider : 'Expedia',
 			currency : flight.currencyCode
 		});
+	}else if(flight.pointOfSaleCountry === 'US'){
+		flight.deepLink = 'http://www.cheapoair.com/fpnext/Air/RemoteSearch/?tabid=1832&from=';
+		flight.deepLink += flight.origin;
+		flight.deepLink += '&to=';
+		flight.deepLink += flight.destination;
+		flight.deepLink += '&fromDt=';
+		flight.deepLink += moment(parseInt(flight.departureDate)).format('MM/DD/YYYY');
+		flight.deepLink += '&toDt=';
+		flight.deepLink += moment(parseInt(flight.returnDate)).format('MM/DD/YYYY');
+		flight.deepLink += '&rt=true&daan=&raan=&dst=&rst=&ad=1&se=0&ch=0&infl=0&infs=0&class=1&airpref=&preftyp=1&searchflxdt=false&IsNS=false&searchflxarpt=false&childAge=';
+		flight.prices.push({
+			deeplink : flight.deepLink,
+			price : flight.lowestFare,
+			provider : 'CheapOAir',
+			currency : flight.currencyCode
+		});
 	}else if(flight.pointOfSaleCountry === 'GB'){			
 		if(flight.origin === 'LON' && flight.airlineCode === 'D8'){
 			flight.deepLink = 'http://tracking.publicidees.com/clic.php?progid=515&partid=47438&dpl=http://www.govoyages.com/?mktportal=publicidees&mktportal=publicidees&utm_source=publicidees&utm_medium=affiliates&utm_term=flight&utm_campaign=47438&utm_content=metasearch&#/results/type=R;dep=';
@@ -176,7 +192,7 @@ function priceDirtyChecking(flight){
 			provider : 'GoVoyages',
 			currency : flight.currencyCode
 		});
-	}else if(flight.pointOfSaleCountry === 'FR'){
+	}else{
 		flight.deepLink = 'http://tracking.publicidees.com/clic.php?progid=515&partid=47438&dpl=http://www.govoyages.com/?mktportal=publicidees&mktportal=publicidees&utm_source=publicidees&utm_medium=affiliates&utm_term=flight&utm_campaign=47438&utm_content=metasearch&#/results/type=R;dep=';
 		flight.deepLink += moment(parseInt(flight.departureDate)).format('YYYY-MM-DD');
 		flight.deepLink += ';from=';
@@ -186,45 +202,13 @@ function priceDirtyChecking(flight){
 		flight.deepLink += ';ret=';
 		flight.deepLink += moment(parseInt(flight.returnDate)).format('YYYY-MM-DD');
 		flight.deepLink += ';collectionmethod=false;internalSearch=true';
-		if(flight.pointOfSaleDestinationCountry === 'FR'){
+		if(flight.pointOfSaleCountry === 'FR' && flight.pointOfSaleDestinationCountry === 'FR'){
 			flight.lowestFare = flight.lowestFare-40;
 		}
 		flight.prices.push({
 			deeplink : flight.deepLink,
 			price : flight.lowestFare,
 			provider : 'GoVoyages',
-			currency : flight.currencyCode
-		});
-	}else if(flight.pointOfSaleCountry === 'PT'){
-		flight.deepLink = 'http://tracking.publicidees.com/clic.php?progid=515&partid=47438&dpl=http://www.govoyages.com/?mktportal=publicidees&mktportal=publicidees&utm_source=publicidees&utm_medium=affiliates&utm_term=flight&utm_campaign=47438&utm_content=metasearch&#/results/type=R;dep=';
-		flight.deepLink += moment(parseInt(flight.departureDate)).format('YYYY-MM-DD');
-		flight.deepLink += ';from=';
-		flight.deepLink += flight.origin;
-		flight.deepLink += ';to=';
-		flight.deepLink += flight.destination;
-		flight.deepLink += ';ret=';
-		flight.deepLink += moment(parseInt(flight.returnDate)).format('YYYY-MM-DD');
-		flight.deepLink += ';collectionmethod=false;internalSearch=true';
-		flight.prices.push({
-			deeplink : flight.deepLink,
-			price : flight.lowestFare,
-			provider : 'GoVoyages',
-			currency : flight.currencyCode
-		});
-	}else{
-		flight.deepLink = 'http://www.cheapoair.com/fpnext/Air/RemoteSearch/?tabid=1832&from=';
-		flight.deepLink += flight.origin;
-		flight.deepLink += '&to=';
-		flight.deepLink += flight.destination;
-		flight.deepLink += '&fromDt=';
-		flight.deepLink += moment(parseInt(flight.departureDate)).format('MM/DD/YYYY');
-		flight.deepLink += '&toDt=';
-		flight.deepLink += moment(parseInt(flight.returnDate)).format('MM/DD/YYYY');
-		flight.deepLink += '&rt=true&daan=&raan=&dst=&rst=&ad=1&se=0&ch=0&infl=0&infs=0&class=1&airpref=&preftyp=1&searchflxdt=false&IsNS=false&searchflxarpt=false&childAge=';
-		flight.prices.push({
-			deeplink : flight.deepLink,
-			price : flight.lowestFare,
-			provider : 'CheapOAir',
 			currency : flight.currencyCode
 		});
 	}

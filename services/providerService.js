@@ -4,10 +4,10 @@ var moment = require('moment');
 var XmlStream = require('xml-stream');
 var soap = require('soap');
 var _this = this;
-var flightDAO = require('../dao/flightDAO');
+var searchDAO = require('../dao/searchDAO');
 
 exports.getBDVData = function(res, provider, flightId, departureDate, returnDate, callback){
-	flightDAO.getById(flightId, function(err, search){
+	searchDAO.getById(flightId, function(err, search){
 		if (err) {
 			callback(err);
 			res.status(400);
@@ -98,7 +98,7 @@ exports.getBDVData = function(res, provider, flightId, departureDate, returnDate
 					price : offers.trip[0].totalPrice,
 					deepLink : offers.trip[0].deepLink
 				};
-				flightDAO.updateFlightPrice(flightId, flight, price, function(err, data){
+				searchDAO.updateFlightPrice(flightId, flight, price, function(err, data){
 					if(err){
 						callback(err);
 					}else{
@@ -115,8 +115,8 @@ exports.getBDVData = function(res, provider, flightId, departureDate, returnDate
 	}
 };
 
-exports.getBravoflyData = function(res, provider, flightId, departureDate, returnDate, callback){
-	flightDAO.getById(flightId, function(err, search){
+exports.getBravoflyData = function(res, provider, searchId, flightId, callback){
+	searchDAO.getFlightById(searchId, flightId, function(err, search){
 		if (err) {
 			callback(err);
 			res.status(400);
@@ -127,11 +127,11 @@ exports.getBravoflyData = function(res, provider, flightId, departureDate, retur
 				soapRequest += '<BravoFlySearchWs:searchFlights xmlns:BravoFlySearchWs="http://webservices.bravofly.com/">';
 				soapRequest += '<idBusinessProfile>'+provider.login+'</idBusinessProfile>';
 				soapRequest += '<password>'+provider.password+'</password>';
-				soapRequest += '<departureAirport>'+search.origin+'</departureAirport>';
-				soapRequest += '<arrivalAirport>'+search.destination+'</arrivalAirport>';
+				soapRequest += '<departureAirport>'+search.flights[0].origin+'</departureAirport>';
+				soapRequest += '<arrivalAirport>'+search.flights[0].destination+'</arrivalAirport>';
 				soapRequest += '<roundTrip>true</roundTrip>';
-				soapRequest += '<outboundDate>'+moment(parseInt(departureDate)).format('YYYY-MM-DD')+'</outboundDate>';
-				soapRequest += '<returnDate>'+moment(parseInt(returnDate)).format('YYYY-MM-DD')+'</returnDate>';
+				soapRequest += '<outboundDate>'+moment(parseInt(search.flights[0].departureDate)).format('YYYY-MM-DD')+'</outboundDate>';
+				soapRequest += '<returnDate>'+moment(parseInt(search.flights[0].returnDate)).format('YYYY-MM-DD')+'</returnDate>';
 				soapRequest += '<adults>1</adults>';
 				soapRequest += '<childs>0</childs>';
 				soapRequest += '<infants>0</infants>';
@@ -158,8 +158,7 @@ exports.getBravoflyData = function(res, provider, flightId, departureDate, retur
 					xml.on('endElement: return', function(response) {
 						if(response.idRequest){
 							var flight = {
-								departureDate : departureDate,
-								returnDate : returnDate
+								_id : flightId
 							};
 							var price = {
 								provider : provider.name,
@@ -167,7 +166,7 @@ exports.getBravoflyData = function(res, provider, flightId, departureDate, retur
 								currency : response.trips[0].currency,
 								deeplink : response.trips[0].deeplink+"&partId="+provider.tokenId
 							};
-							flightDAO.updateFlightPrice(flightId, flight, price, function(err, data){
+							searchDAO.updateFlightPrice(searchId, flight, price, function(err, data){
 								if(err){
 									callback(err);
 								}else{

@@ -22,11 +22,20 @@ exports.getById = function(id, callback){
 	});
 };
 
-exports.updateFlightPrice = function(id, flight, price, callback){
+exports.getFlightById = function(id, flightId, callback){
+	var query  = { 
+		_id: new mongoose.Types.ObjectId(id),
+		'flights._id' : new mongoose.Types.ObjectId(flightId)
+	};
+	Search.findOne(query, 'flights.$', function (err, search) {
+		callback(err, search);
+	});
+};
+
+exports.updateFlightPrice = function(id, flightId, price, callback){
 	var query = {
 		_id: new mongoose.Types.ObjectId(id),
-		'flights.departureDate' : flight.departureDate,
-		'flights.returnDate' : flight.returnDate
+		'flights._id' : flightId
 	};
 	var updateDoc = {
 		deeplink : price.deeplink,
@@ -42,4 +51,23 @@ exports.updateFlightPrice = function(id, flight, price, callback){
 	Search.update(query, pushDocument, function(err, doc){
 	    callback(err, doc);
 	});
+};
+
+exports.getFlightProvider = function(idSearch, idFlight, name, callback){
+	var query  = { 
+		_id: new mongoose.Types.ObjectId(idSearch),
+		'flights' : {
+	        '$elemMatch':{
+	            '_id': new mongoose.Types.ObjectId(idFlight),
+	            'prices' : {
+	                '$elemMatch':{
+	                    'provider' : name
+	                }
+	             }
+	         }
+	     }
+	};
+	Search.findOne(query, 'flights.$', function(err, search){
+		callback(err, search);
+	})
 };

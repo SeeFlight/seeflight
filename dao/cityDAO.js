@@ -27,3 +27,16 @@ exports.getByCity = function(city, callback){
 		callback(err, search);
 	});
 };
+
+exports.addCity = function(city, callback){
+	var cityDB = new City({
+		cityCode : city.cityCode,
+		cityName : city.cityName,
+		pointOfSale : city.pointOfSale,
+		airports : city.airports
+	});
+
+	cityDB.save();
+
+	callback(null, cityDB);
+};

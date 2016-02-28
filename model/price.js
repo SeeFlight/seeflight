@@ -14,7 +14,8 @@ var PriceSchema = new Schema({
 	deeplink: String,
 	provider: String,
 	currency : String,
-	price: Number
+	price: Number,
+	airlineCode : String
 });
 
 mongoose.model('Price', PriceSchema);

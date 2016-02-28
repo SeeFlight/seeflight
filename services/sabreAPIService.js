@@ -70,6 +70,79 @@ exports.getLeadPriceCalendar = function(res, forceRefresh, callback, origin, des
 	}
 };
 
+
+exports.getPointOfSaleCountries = function(res, forceRefresh, callback){
+	checkSabreAuthentication(res, getPointOfSaleCountriesCallback, forceRefresh);
+
+	function getPointOfSaleCountriesCallback(){
+		var options = {
+			host: res.app.locals.sabreApiPath,
+			path: '/v1/lists/supported/pointofsalecountries',
+			method: 'GET',
+			headers: {
+				'Authorization' : res.app.locals.sabreAccessTokenType+' '+res.app.locals.sabreAccessToken
+			}
+		};
+
+		var request = https.request(options, function(resp){
+			var data = "";
+			resp.on('data', function (chunk) {
+				data += chunk;
+			});
+			resp.on('end', function () {
+				if(resp.statusCode === 401 && _this.tries < 4){
+					_this.tries++;
+					_this.getPointOfSaleCountries(res, true, callback);
+				}else if(res.statusCode === 401){
+					callback(null, resp, null);
+				}else{
+					callback(null, resp, data);
+				}
+			});
+		}).on("error", function(e){
+			console.error('Error when calling :\n'+JSON.stringify(options)+'\nMessage :\n'+e.message);
+			callback(e);
+		});
+		request.end();	
+	}
+};
+
+exports.findAirport = function(res, forceRefresh, callback, countryCode){
+	checkSabreAuthentication(res, getAirports, forceRefresh);
+
+	function getAirports(){
+		var options = {
+			host: res.app.locals.sabreApiPath,
+			path: '/v1/lists/supported/shop/flights/origins-destinations?origincountry='+countryCode+'&destinationcountry='+countryCode+'&pointofsalecountry='+countryCode,
+			method: 'GET',
+			headers: {
+				'Authorization' : res.app.locals.sabreAccessTokenType+' '+res.app.locals.sabreAccessToken
+			}
+		};
+
+		var request = https.request(options, function(resp){
+			var data = "";
+			resp.on('data', function (chunk) {
+				data += chunk;
+			});
+			resp.on('end', function () {
+				if(resp.statusCode === 401 && _this.tries < 4){
+					_this.tries++;
+					_this.findAirport(res, true, callback);
+				}else if(res.statusCode === 401){
+					callback(null, resp, null);
+				}else{
+					callback(null, resp, data);
+				}
+			});
+		}).on("error", function(e){
+			console.error('Error when calling :\n'+JSON.stringify(options)+'\nMessage :\n'+e.message);
+			callback(e);
+		});
+		request.end();	
+	}
+}
+
 function checkSabreAuthentication(res, callback, forceRefresh){
 	if(forceRefresh !== true && res.app.locals.sabreAccessToken && res.app.locals.sabreAccessTokenExpires && res.app.locals.sabreAccessTokenType && new Date().getTime()<res.app.locals.sabreAccessTokenExpires){
 		callback();

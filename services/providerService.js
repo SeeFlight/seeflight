@@ -157,6 +157,7 @@ exports.getBravoflyData = function(res, provider, searchId, flightId, callback){
 					xml.collect('trips');
 					xml.on('endElement: return', function(response) {
 						if(response.idRequest){
+							console.log(response.trips[0]);
 							var flight = {
 								_id : flightId
 							};
@@ -164,7 +165,8 @@ exports.getBravoflyData = function(res, provider, searchId, flightId, callback){
 								provider : provider.name,
 								price : Math.ceil(response.trips[0].amount),
 								currency : response.trips[0].currency,
-								deeplink : response.trips[0].deeplink+"&partId="+provider.tokenId
+								deeplink : response.trips[0].deeplink+"&partId="+provider.tokenId,
+								airline : response.trips[0].outbountLeg.hops.idAirline
 							};
 							searchDAO.updateFlightPrice(searchId, flight, price, function(err, data){
 								if(err){

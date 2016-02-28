@@ -166,7 +166,7 @@ exports.getBravoflyData = function(res, provider, searchId, flightId, callback){
 								price : Math.ceil(response.trips[0].amount),
 								currency : response.trips[0].currency,
 								deeplink : response.trips[0].deeplink+"&partId="+provider.tokenId,
-								airline : response.trips[0].outbountLeg.hops.idAirline
+								airline : response.trips[0].outboundLeg.hops.idAirline
 							};
 							searchDAO.updateFlightPrice(searchId, flight, price, function(err, data){
 								if(err){

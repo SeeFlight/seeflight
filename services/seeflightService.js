@@ -6,7 +6,7 @@ var Search = mongoose.model('Search');
 var Flight = mongoose.model('Flight');
 var providerDAO = require('../dao/providerDAO');
 
-exports.getAndStoreFlights = function(res, origin, destination, originPointOfSale, destinationPointOfSale, callback){
+exports.getAndStoreFlights = function(res, origin, destination, originPointOfSale, callback){
 	var nbRequests = Math.ceil(res.app.locals.maxLengthOfStay/res.app.locals.maxSabreAPILengthOfStay);
 	var nbResults = 0;
 	var j=1;
@@ -83,7 +83,6 @@ exports.getAndStoreFlights = function(res, origin, destination, originPointOfSal
 									lowestFare:Math.ceil(data.FareInfo[i].LowestFare.Fare),
 									currencyCode:data.FareInfo[i].CurrencyCode,
 									pointOfSaleCountry:originPointOfSale,
-									pointOfSaleDestinationCountry:destinationPointOfSale,
 									daysToDeparture:daysToDeparture,
 									daysToReturn:daysToReturn,
 									airlineCode : data.FareInfo[i].LowestFare.AirlineCodes[0]

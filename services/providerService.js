@@ -157,7 +157,6 @@ exports.getBravoflyData = function(res, provider, searchId, flightId, callback){
 					xml.collect('trips');
 					xml.on('endElement: return', function(response) {
 						if(response.idRequest){
-							console.log(response.trips[0]);
 							var flight = {
 								_id : flightId
 							};

@@ -198,3 +198,59 @@ exports.getBravoflyData = function(res, provider, searchId, flightId, callback){
 		}
 	});
 };
+
+exports.getExpediaData = function(res, provider, searchId, flightId, callback){
+	searchDAO.getFlightById(searchId, flightId, function(err, search){
+		if (err) {
+			callback(err);
+			res.status(400);
+		} else {
+			if(search){
+				var url = provider.protocol+"://"+provider.host+provider.path;
+
+				url += '?pos='+search.flights[0].pointOfSaleCountry;
+				url += '&tripFrom='+search.origin;
+				url += '&tripTo='+search.destination;
+				url += '&departDate='+moment(parseInt(search.flights[0].departureDate)).format('YYYY-MM-DD'); 
+				url += '&returnDate='+moment(parseInt(search.flights[0].returnDate)).format('YYYY-MM-DD'); 
+
+				http.get(url).on('response', function (response) {
+					if(response.statusCode === 200){
+						var result = JSON.stringify(response.data);
+
+						var flight = {
+							departureDate : search.flights[0].departureDate,
+							returnDate : search.flights[0].returnDate
+						};
+						var price = {
+							provider : provider.name,
+							price : result.perPsgrPrice,
+							deepLink : result.dealDeepLink
+						};
+						searchDAO.updateFlightPrice(flightId, flight, price, function(err, data){
+							if(err){
+								callback(err);
+							}else{
+								if(data){
+									callback(null, price);
+								}else{
+									var error = "Not able to store Expedia offer";
+									callback(error);
+								}
+							}
+						});
+					}else{
+						var error = "Error while crawling Expedia API "+response.statusCode;
+						callback(error);
+					}
+				}).on("error", function(e){
+					callback(e);
+					console.log(e);
+				});
+			}else{
+				var error = "Flight ID not found";
+				callback(error);
+			}
+		}
+	});
+};

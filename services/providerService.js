@@ -25,34 +25,19 @@ exports.getBDVData = function(res, provider, searchId, flightId, callback){
 				url += '&enfants=0';
 				url += '&bebes=0';
 				url += '&device=D';
+				console.log(url);
 				http.get(url).on('response', function (response) {
-					if(response.statusCode === 302){
-						url = response.headers["location"];
-						console.log("redirect", url);
-						http.get(url).on('response', function(response){
-							if(response.statusCode === 302){
-								url = response.headers["location"];
-								console.log("redirect", url);
-								https.get(url).on('response', function(response){
-									console.log(response);
-									response.setEncoding('utf8');
-									var xml = new XmlStream(response);
+					response.setEncoding('utf8');
+					var xml = new XmlStream(response);
 
-									xml.on('updateElement: getXmlSearch', function(search) {
-										if(search.url){
-											getResults(search.url, new Date().getTime());
-										}else{
-											var error = "Unable to get the link from BDV";
-											callback(error);
-										}
-									});
-								});
-							}
-						});
-					}else{
-						var error = "Expected redirection from PublicIdee, got http code "+response.statusCode;
-						callback(error);
-					}
+					xml.on('updateElement: getXmlSearch', function(search) {
+						if(search.url){
+							getResults(search.url, new Date().getTime());
+						}else{
+							var error = "Unable to get the link from BDV";
+							callback(error);
+						}
+					});
 				}).on("error", function(e){
 					callback(e);
 					console.log(e);

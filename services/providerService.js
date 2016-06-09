@@ -6,8 +6,8 @@ var soap = require('soap');
 var _this = this;
 var searchDAO = require('../dao/searchDAO');
 
-exports.getBDVData = function(res, provider, flightId, departureDate, returnDate, callback){
-	searchDAO.getById(flightId, function(err, search){
+exports.getBDVData = function(res, provider, searchId, flightId, callback){
+	searchDAO.getFlightById(searchId, flightId, function(err, search){
 		if (err) {
 			callback(err);
 			res.status(400);
@@ -15,33 +15,37 @@ exports.getBDVData = function(res, provider, flightId, departureDate, returnDate
 			if(search){
 				var url = provider.protocol+"://"+provider.host+provider.path;
 
-				url += '?idPart=PID_BDVL_44a&departure='+search.origin;
-				url += '&arrival='+search.destination;
-				url += '&dateDep='+moment(parseInt(departureDate)).format('YYYY-MM-DD'); 
-				url += '&dateRet='+moment(parseInt(returnDate)).format('YYYY-MM-DD'); 
+				url += '?idPart=PID_BDVL_44b&departure='+search.flights[0].origin;
+				url += '&arrival='+search.flights[0].destination;
+				url += '&dateDep='+moment(parseInt(search.flights[0].departureDate)).format('YYYY-MM-DD');
+				url += '&dateRet='+moment(parseInt(search.flights[0].returnDate)).format('YYYY-MM-DD');
 				url += '&allerRet=R';
 				url += '&classe=E';
 				url += '&adultes=1';
 				url += '&enfants=0';
 				url += '&bebes=0';
 				url += '&device=D';
-
+				console.log(url);
 				http.get(url).on('response', function (response) {
 					if(response.statusCode === 302){
 						url = response.headers["location"];
-
 						http.get(url).on('response', function(response){
-	  						response.setEncoding('utf8');
-							var xml = new XmlStream(response);
-							
-							xml.on('updateElement: getXmlSearch', function(search) {
-								if(search.url){
-									getResults(search.url, new Date().getTime());
-								}else{
-									var error = "Unable to get the link from BDV";
-									callback(error);
-								}
-							});
+							if(response.statusCode === 302){
+								url = response.headers["location"];
+								https.get(url).on('response', function(response){
+									response.setEncoding('utf8');
+									var xml = new XmlStream(response);
+
+									xml.on('updateElement: getXmlSearch', function(search) {
+										if(search.url){
+											getResults(search.url, new Date().getTime());
+										}else{
+											var error = "Unable to get the link from BDV";
+											callback(error);
+										}
+									});
+								});
+							}
 						});
 					}else{
 						var error = "Expected redirection from PublicIdee, got http code "+response.statusCode;
@@ -150,10 +154,10 @@ exports.getBravoflyData = function(res, provider, searchId, flightId, callback){
 						'Content-Type': 'text/xml'
 					}
 				};
-				
+
 				var put = http.request(options).on("response", function(response){
 					var xml = new XmlStream(response);
-							
+
 					xml.collect('trips');
 					xml.on('endElement: return', function(response) {
 						if(response.idRequest){
@@ -211,8 +215,8 @@ exports.getExpediaData = function(res, provider, searchId, flightId, callback){
 				url += '?pos='+search.flights[0].pointOfSaleCountry;
 				url += '&tripFrom='+search.origin;
 				url += '&tripTo='+search.destination;
-				url += '&departDate='+moment(parseInt(search.flights[0].departureDate)).format('YYYY-MM-DD'); 
-				url += '&returnDate='+moment(parseInt(search.flights[0].returnDate)).format('YYYY-MM-DD'); 
+				url += '&departDate='+moment(parseInt(search.flights[0].departureDate)).format('YYYY-MM-DD');
+				url += '&returnDate='+moment(parseInt(search.flights[0].returnDate)).format('YYYY-MM-DD');
 
 				http.get(url).on('response', function (response) {
 					if(response.statusCode === 200){

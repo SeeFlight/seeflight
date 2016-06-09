@@ -25,14 +25,16 @@ exports.getBDVData = function(res, provider, searchId, flightId, callback){
 				url += '&enfants=0';
 				url += '&bebes=0';
 				url += '&device=D';
-				console.log(url);
 				http.get(url).on('response', function (response) {
 					if(response.statusCode === 302){
 						url = response.headers["location"];
+						console.log("redirect", url);
 						http.get(url).on('response', function(response){
 							if(response.statusCode === 302){
 								url = response.headers["location"];
+								console.log("redirect", url);
 								https.get(url).on('response', function(response){
+									console.log(response.statusCode);
 									response.setEncoding('utf8');
 									var xml = new XmlStream(response);
 

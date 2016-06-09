@@ -34,7 +34,7 @@ exports.getBDVData = function(res, provider, searchId, flightId, callback){
 								url = response.headers["location"];
 								console.log("redirect", url);
 								https.get(url).on('response', function(response){
-									console.log(response.statusCode);
+									console.log(response);
 									response.setEncoding('utf8');
 									var xml = new XmlStream(response);
 

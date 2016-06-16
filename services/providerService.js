@@ -190,6 +190,71 @@ exports.getBravoflyData = function(res, provider, searchId, flightId, callback){
 	});
 };
 
+exports.getOpodoData = function(res, provider, searchId, flightId, callback){
+	searchDAO.getFlightById(searchId, flightId, function(err, search){
+		if (err) {
+			callback(err);
+			res.status(400);
+		} else {
+			if(search){
+				var soapRequest = '<soap:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v1="http://metasearch.odigeo.com/metasearch/ws/v1/">';
+				soapRequest += '<soapenv:Header/>';
+				soapRequest += '<soapenv:Body>';
+				soapRequest += '<v1:search>';
+				soapRequest += '<preferences locale="fr_FR" realUserIP="127.0.0.1" userAgent="Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36" domainCode=".fr">';
+				soapRequest += '</preferences>';
+				soapRequest += '<searchRequest maxSize="5”>';
+				soapRequest += '<itinerarySearchRequest cabinClass="TOURIST" numAdults="1" numChildren="0" numInfants="0" directFlightsOnly="false">';
+				soapRequest += '<segmentRequests date="'+moment(parseInt(search.flights[0].departureDate)).format('YYYY-MM-DD')+'">';
+				soapRequest += '<departure iataCode="'+search.flights[0].origin+'"/>';
+				soapRequest += '<destination iataCode="'+search.flights[0].destination+'"/>';
+				soapRequest += '</segmentRequests>';
+				soapRequest += '<segmentRequests date="'+moment(parseInt(search.flights[0].returnDate)).format('YYYY-MM-DD')+'">';
+				soapRequest += '<departure iataCode="'+search.flights[0].destination+'"/>';
+				soapRequest += '<destination iataCode="'+search.flights[0].origin+'"/>';
+				soapRequest += '</segmentRequests>';
+				soapRequest += '</itinerarySearchRequest>';
+				soapRequest += '</searchRequest>';
+				soapRequest += '<metasearchEngineCode>'+provider.login+'</metasearchEngineCode>';
+				soapRequest += '</v1:search>';
+				soapRequest += '</soapenv:Body>';
+				soapRequest += '</soapenv:Envelope>';
+
+				var options = {
+					host: provider.host,
+					port: 80,
+					path: provider.path,
+					method: 'POST',
+					headers: {
+						'Content-Type': 'text/xml'
+					}
+				};
+
+				//TODO : implement results
+				console.log(options.host+options.path);
+				var post = http.request(options).on("response", function(response){
+					console.log(response.statusCode);
+					var xml = new XmlStream(response);
+
+					xml.collect('itineraryResultsPages');
+					xml.on('endElement: searchStatus', function(response) {
+						console.log(response);
+					});
+				}).on("error", function(e){
+					console.error(e);
+					res.writeHead(500);
+					callback(e);
+				});
+				post.write(soapRequest);
+				post.end();
+			}else{
+				var error = "Flight ID not found";
+				callback(error);
+			}
+		}
+	});
+};
+
 exports.getExpediaData = function(res, provider, searchId, flightId, callback){
 	searchDAO.getFlightById(searchId, flightId, function(err, search){
 		if (err) {
